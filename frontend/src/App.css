@@ -391,7 +391,7 @@ textarea::placeholder {
   margin-top: 5px;
 }
 
-/* ===== Request and Donor Cards ===== */
+/* ===== Cards and Badges ===== */
 
 .request-list {
   display: grid;
@@ -433,7 +433,7 @@ textarea::placeholder {
   font-size: 12px;
 }
 
-.blood-badge {
+.amount-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -639,5 +639,167 @@ textarea::placeholder {
 
   .status-controls select {
     width: 100%;
+  }
+}
+
+/* ===== Dashboard Nav ===== */
+
+.dashboard-nav {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dashboard-nav a {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dashboard-nav a:hover,
+.dashboard-nav a.active {
+  background: #fff0f2;
+  color: #b71936;
+}
+
+/* ===== Filter Form ===== */
+
+.filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+
+.filter-form .form-field {
+  flex: 1;
+  min-width: 180px;
+  margin-bottom: 0;
+}
+
+/* ===== Receipt Page ===== */
+
+.receipt-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  background: #f8f7f8;
+}
+
+.receipt-card {
+  width: 100%;
+  max-width: 600px;
+  background: #fff;
+  border: 1px solid #f0e1e4;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 8px 30px rgba(110, 20, 40, 0.08);
+}
+
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.receipt-brand {
+  font-size: 20px;
+  font-weight: 800;
+  color: #b71936;
+}
+
+.receipt-title {
+  font-size: 14px;
+  color: #777;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.receipt-no {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 16px;
+}
+
+.receipt-divider {
+  border: none;
+  border-top: 1px solid #f0e1e4;
+  margin: 16px 0;
+}
+
+.receipt-section h3 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #b71936;
+  margin-bottom: 10px;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 5px 0;
+  color: #444;
+}
+
+.receipt-row span:first-child {
+  color: #888;
+}
+
+.receipt-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 700;
+  color: #b71936;
+  padding: 8px 0;
+}
+
+.receipt-note {
+  font-size: 12px;
+  color: #aaa;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.receipt-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+}
+
+/* ===== Print CSS ===== */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .receipt-page {
+    padding: 0;
+    background: #fff;
+  }
+
+  .receipt-card {
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    padding: 20px;
+    max-width: 100%;
   }
 }

@@ -11,5 +11,4 @@ router.post("/login", authController.loginUser);
 router.get("/me", authMiddleware, authController.getMe);
 router.put("/profile", authMiddleware, authController.updateProfile);
 
-
 module.exports = router;

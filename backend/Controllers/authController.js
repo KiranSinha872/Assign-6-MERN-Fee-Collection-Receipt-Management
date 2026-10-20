@@ -9,9 +9,8 @@ const registerUser = async (req, res) => {
             email,
             password,
             phone,
-            bloodGroup,
-            dateOfBirth,
-            city
+            rollNumber,
+            course
         } = req.body;
 
         if (
@@ -19,9 +18,8 @@ const registerUser = async (req, res) => {
             !email ||
             !password ||
             !phone ||
-            !bloodGroup ||
-            !dateOfBirth ||
-            !city
+            !rollNumber ||
+            !course
         ) {
             return res.status(400).json({
                 message: "All fields are required"
@@ -36,13 +34,19 @@ const registerUser = async (req, res) => {
 
         const normalizedEmail = email.trim().toLowerCase();
 
-        const existingUser = await User.findOne({
-            email: normalizedEmail
-        });
-
-        if (existingUser) {
+        const existingEmail = await User.findOne({ email: normalizedEmail });
+        if (existingEmail) {
             return res.status(409).json({
                 message: "Email already registered"
+            });
+        }
+
+        const existingRoll = await User.findOne({
+            rollNumber: rollNumber.trim()
+        });
+        if (existingRoll) {
+            return res.status(409).json({
+                message: "Roll number already registered"
             });
         }
 
@@ -52,10 +56,9 @@ const registerUser = async (req, res) => {
             name: name.trim(),
             email: normalizedEmail,
             password: hashedPassword,
-            phone,
-            bloodGroup,
-            dateOfBirth,
-            city: city.trim()
+            phone: phone.trim(),
+            rollNumber: rollNumber.trim(),
+            course: course.trim()
         });
 
         return res.status(201).json({
@@ -65,8 +68,8 @@ const registerUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
-                bloodGroup: user.bloodGroup,
-                city: user.city,
+                rollNumber: user.rollNumber,
+                course: user.course,
                 role: user.role
             }
         });
@@ -76,7 +79,7 @@ const registerUser = async (req, res) => {
 
         if (error.code === 11000) {
             return res.status(409).json({
-                message: "Email already registered"
+                message: "Email or roll number already registered"
             });
         }
 
@@ -106,10 +109,7 @@ const loginUser = async (req, res) => {
             });
         }
 
-        const isMatch = await bcrypt.compare(
-            password,
-            user.password
-        );
+        const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(401).json({
@@ -139,8 +139,8 @@ const loginUser = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                bloodGroup: user.bloodGroup,
-                city: user.city,
+                rollNumber: user.rollNumber,
+                course: user.course,
                 role: user.role
             }
         });
@@ -156,8 +156,7 @@ const loginUser = async (req, res) => {
 
 const getMe = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id)
-            .select("-password");
+        const user = await User.findById(req.user.id).select("-password");
 
         if (!user) {
             return res.status(404).json({
@@ -181,11 +180,7 @@ const getMe = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
-        const { name, phone, bloodGroup, dateOfBirth, city } = req.body;
-
-        const allowedBloodGroups = [
-            "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"
-        ];
+        const { name, phone, course } = req.body;
 
         const updates = {};
 
@@ -207,34 +202,13 @@ const updateProfile = async (req, res) => {
             updates.phone = phone.trim();
         }
 
-        if (bloodGroup !== undefined) {
-            if (!allowedBloodGroups.includes(bloodGroup)) {
+        if (course !== undefined) {
+            if (!course.trim()) {
                 return res.status(400).json({
-                    message: "Invalid blood group"
+                    message: "Course cannot be empty"
                 });
             }
-            updates.bloodGroup = bloodGroup;
-        }
-
-        if (dateOfBirth !== undefined) {
-            const date = new Date(dateOfBirth);
-
-            if (!dateOfBirth || Number.isNaN(date.getTime())) {
-                return res.status(400).json({
-                    message: "Invalid date of birth"
-                });
-            }
-
-            updates.dateOfBirth = date;
-        }
-
-        if (city !== undefined) {
-            if (!city.trim()) {
-                return res.status(400).json({
-                    message: "City cannot be empty"
-                });
-            }
-            updates.city = city.trim();
+            updates.course = course.trim();
         }
 
         if (Object.keys(updates).length === 0) {
@@ -259,6 +233,7 @@ const updateProfile = async (req, res) => {
             message: "Profile updated successfully",
             user
         });
+
     } catch (error) {
         console.log("Profile update error:", error.message);
 
@@ -271,5 +246,6 @@ const updateProfile = async (req, res) => {
 module.exports = {
     registerUser,
     loginUser,
-    getMe,updateProfile
+    getMe,
+    updateProfile
 };
