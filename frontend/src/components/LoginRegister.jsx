@@ -1,8 +1,6 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API_URL = `${import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api"}/auth`;
+import { loginApi, registerApi } from "../api/authApi";
 
 export default function LoginRegister({ onLogin, initialMode = "login" }) {
     const navigate = useNavigate();
@@ -42,16 +40,10 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
 
         try {
             if (isLogin) {
-                const res = await fetch(`${API_URL}/login`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        email: form.email.trim().toLowerCase(),
-                        password: form.password
-                    })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message || "Login failed");
+                const data = await loginApi(
+                    form.email.trim().toLowerCase(),
+                    form.password
+                );
 
                 const { token, user } = data;
 
@@ -64,20 +56,14 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                     replace: true
                 });
             } else {
-                const res = await fetch(`${API_URL}/register`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        name: form.name.trim(),
-                        email: form.email.trim().toLowerCase(),
-                        password: form.password,
-                        phone: form.phone.trim(),
-                        rollNumber: form.rollNumber.trim(),
-                        course: form.course.trim()
-                    })
+                const data = await registerApi({
+                    name: form.name.trim(),
+                    email: form.email.trim().toLowerCase(),
+                    password: form.password,
+                    phone: form.phone.trim(),
+                    rollNumber: form.rollNumber.trim(),
+                    course: form.course.trim()
                 });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message || "Registration failed");
 
                 setMessage(data.message || "Registration successful!");
                 setError(false);
@@ -90,9 +76,7 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
             }
         } catch (err) {
             setError(true);
-            setMessage(
-                err.message || "Could not connect to server. Please try again."
-            );
+            setMessage(err.message || "Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -136,8 +120,7 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                                     name="name"
                                     value={form.name}
                                     onChange={handleChange}
-                                    placeholder="Enter your full name"
-                                    minLength={2}
+                                    placeholder="Enter full name"
                                     required
                                 />
                             </div>
@@ -150,7 +133,7 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                                     type="tel"
                                     value={form.phone}
                                     onChange={handleChange}
-                                    placeholder="Enter your phone number"
+                                    placeholder="Enter phone number"
                                     required
                                 />
                             </div>
@@ -169,14 +152,18 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
 
                             <div className="form-field">
                                 <label htmlFor="course">Course</label>
-                                <input
+                                <select
                                     id="course"
                                     name="course"
                                     value={form.course}
                                     onChange={handleChange}
-                                    placeholder="e.g. B.Tech CSE"
                                     required
-                                />
+                                >
+                                    <option value="">Select course</option>
+                                    <option value="B.Tech CSE">B.Tech CSE</option>
+                                    <option value="B.Tech ECE">B.Tech ECE</option>
+                                    <option value="B.Tech ME">B.Tech ME</option>
+                                </select>
                             </div>
                         </>
                     )}
@@ -189,7 +176,7 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                             type="email"
                             value={form.email}
                             onChange={handleChange}
-                            placeholder="Enter your email"
+                            placeholder="Enter email"
                             autoComplete="email"
                             required
                         />
@@ -203,8 +190,7 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                             type="password"
                             value={form.password}
                             onChange={handleChange}
-                            placeholder="Minimum 8 characters"
-                            minLength={8}
+                            placeholder="Enter password"
                             autoComplete={isLogin ? "current-password" : "new-password"}
                             required
                         />
@@ -227,15 +213,13 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                         {loading
                             ? "Please wait..."
                             : isLogin
-                                ? "Login to Account"
-                                : "Create Account"}
+                            ? "Login to Account"
+                            : "Create Account"}
                     </button>
                 </form>
 
                 <p className="auth-switch">
-                    {isLogin
-                        ? "New to FeeDesk? "
-                        : "Already have an account? "}
+                    {isLogin ? "New student? " : "Already registered? "}
                     <button
                         type="button"
                         onClick={() => switchMode(!isLogin)}

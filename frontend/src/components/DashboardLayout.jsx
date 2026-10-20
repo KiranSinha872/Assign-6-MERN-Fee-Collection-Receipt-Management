@@ -1,4 +1,3 @@
-
 import { NavLink, useNavigate } from "react-router-dom";
 
 export default function DashboardLayout({ title, user, children }) {
@@ -16,7 +15,7 @@ export default function DashboardLayout({ title, user, children }) {
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        navigate("/", { replace: true });
+        navigate("/login", { replace: true });
     };
 
     const isAdmin = currentUser.role === "Admin";
@@ -35,7 +34,6 @@ export default function DashboardLayout({ title, user, children }) {
                             <NavLink to="/admin/dashboard">Dashboard</NavLink>
                             <NavLink to="/admin/fees">Fee Structures</NavLink>
                             <NavLink to="/admin/payments/new">Record Payment</NavLink>
-                            <NavLink to="/admin/students">Students</NavLink>
                         </>
                     ) : (
                         <>
@@ -81,4 +79,3 @@ export default function DashboardLayout({ title, user, children }) {
         </div>
     );
 }
-

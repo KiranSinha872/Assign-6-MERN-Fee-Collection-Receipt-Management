@@ -1,9 +1,7 @@
-
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout";
-
-const API_URL = `${import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api"}/fees`;
+import { getFeesApi, deleteFeeApi } from "../api/feeApi";
 
 export default function FeeList({ user }) {
     const [fees, setFees] = useState([]);
@@ -18,11 +16,7 @@ export default function FeeList({ user }) {
         const loadFees = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const res = await fetch(API_URL, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message || "Failed to load fee structures.");
+                const data = await getFeesApi(token);
                 setFees(data.feeStructures || []);
             } catch (err) {
                 setError(err.message || "Failed to load fee structures.");
@@ -39,12 +33,7 @@ export default function FeeList({ user }) {
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${API_URL}/${id}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Failed to delete fee structure.");
+            await deleteFeeApi(token, id);
             setMessage("Fee structure deleted successfully.");
             setFees((previous) => previous.filter((f) => f._id !== id));
         } catch (err) {
@@ -68,28 +57,32 @@ export default function FeeList({ user }) {
 
             <section className="dashboard-section">
                 <div className="section-heading">
-                    <span className="section-icon">📋</span>
+                    <span className="section-icon">📚</span>
                     <div>
                         <h2>Manage Fee Structures</h2>
-                        <p>Create and manage fee entries per course.</p>
+                        <p>Configure fee heads and amounts per course.</p>
                     </div>
                 </div>
 
                 <div className="filter-form">
                     <div className="form-field">
                         <label htmlFor="courseFilter">Filter by Course</label>
-                        <input
+                        <select
                             id="courseFilter"
                             value={courseFilter}
-                            onChange={(e) =>
-                                setSearchParams(
-                                    e.target.value
-                                        ? { course: e.target.value }
-                                        : {}
-                                )
-                            }
-                            placeholder="e.g. B.Tech CSE"
-                        />
+                            onChange={(e) => {
+                                if (e.target.value) {
+                                    setSearchParams({ course: e.target.value });
+                                } else {
+                                    setSearchParams({});
+                                }
+                            }}
+                        >
+                            <option value="">All courses</option>
+                            <option value="B.Tech CSE">B.Tech CSE</option>
+                            <option value="B.Tech ECE">B.Tech ECE</option>
+                            <option value="B.Tech ME">B.Tech ME</option>
+                        </select>
                     </div>
 
                     <Link to="/admin/fees/new" className="submit-btn">
@@ -99,51 +92,55 @@ export default function FeeList({ user }) {
             </section>
 
             <section className="dashboard-section">
-                {loading && <p>Loading fee structures...</p>}
+                <div className="section-heading">
+                    <span className="section-icon">📑</span>
+                    <div>
+                        <h2>Fee Heads</h2>
+                        <p>{filteredFees.length} fee structure(s) found.</p>
+                    </div>
+                </div>
 
-                {error && (
-                    <p className="auth-message error" role="status">
-                        {error}
-                    </p>
-                )}
-
-                {!loading && !error && filteredFees.length === 0 && (
+                {loading ? (
+                    <p>Loading fee structures...</p>
+                ) : error ? (
+                    <p className="auth-message error">{error}</p>
+                ) : filteredFees.length === 0 ? (
                     <p className="empty-state">No fee structures found.</p>
-                )}
-
-                {!loading && !error && filteredFees.length > 0 && (
+                ) : (
                     <div className="request-list">
                         {filteredFees.map((fee) => (
                             <article className="request-card" key={fee._id}>
                                 <div className="request-card-heading">
                                     <div>
-                                        <h3>{fee.feeHead}</h3>
-                                        <p className="request-id">Course: {fee.course}</p>
+                                        <h3>{fee.course}</h3>
+                                        <p className="request-id">{fee.feeHead}</p>
                                     </div>
-                                    <span className="amount-badge">₹{fee.amount.toLocaleString("en-IN")}</span>
+
+                                    <span className="amount-badge">
+                                        ₹{Number(fee.amount).toLocaleString("en-IN")}
+                                    </span>
                                 </div>
 
                                 <div className="request-details">
                                     <p>
                                         <strong>Due Date:</strong>{" "}
-                                        {new Date(fee.dueDate).toLocaleDateString("en-IN")}
-                                    </p>
-                                    <p>
-                                        <strong>Created by:</strong>{" "}
-                                        {(fee.createdBy && fee.createdBy.name) || "Admin"}
+                                        {fee.dueDate
+                                            ? new Date(fee.dueDate).toLocaleDateString("en-IN")
+                                            : "N/A"}
                                     </p>
                                 </div>
 
                                 <div className="status-controls">
                                     <Link
                                         to={`/admin/fees/${fee._id}/edit`}
-                                        className="secondary-btn"
+                                        className="edit-btn"
                                     >
                                         Edit
                                     </Link>
+
                                     <button
                                         type="button"
-                                        className="logout-btn"
+                                        className="delete-btn"
                                         onClick={() => handleDelete(fee._id)}
                                     >
                                         Delete

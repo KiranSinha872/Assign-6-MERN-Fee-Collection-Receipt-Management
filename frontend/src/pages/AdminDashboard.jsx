@@ -1,9 +1,7 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout";
-
-const BASE_URL = import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api";
+import { getDashboardApi, getStudentsApi } from "../api/feeApi";
 
 export default function AdminDashboard({ user }) {
     const [data, setData] = useState(null);
@@ -15,16 +13,8 @@ export default function AdminDashboard({ user }) {
         const loadDashboard = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const headers = { Authorization: `Bearer ${token}` };
-
-                const dashRes = await fetch(`${BASE_URL}/dashboard`, { headers });
-                const dashData = await dashRes.json();
-                if (!dashRes.ok) throw new Error(dashData.message || "Failed to load dashboard data.");
-
-                const stuRes = await fetch(`${BASE_URL}/payments/students`, { headers });
-                const stuData = await stuRes.json();
-                if (!stuRes.ok) throw new Error(stuData.message || "Failed to load students.");
-
+                const dashData = await getDashboardApi(token);
+                const stuData = await getStudentsApi(token);
                 setData(dashData);
                 setStudents(stuData.students || []);
             } catch (err) {

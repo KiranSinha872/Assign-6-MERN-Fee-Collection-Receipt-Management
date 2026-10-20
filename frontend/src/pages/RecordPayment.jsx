@@ -1,8 +1,11 @@
-
 import { useEffect, useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
-
-const BASE_URL = import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api";
+import {
+    getStudentsApi,
+    getFeesApi,
+    recordPaymentApi,
+    getStudentPaymentsApi
+} from "../api/feeApi";
 
 const PAYMENT_MODES = ["Cash", "UPI", "Card"];
 
@@ -33,16 +36,8 @@ export default function RecordPayment({ user }) {
         const loadData = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const headers = { Authorization: `Bearer ${token}` };
-
-                const stuRes = await fetch(`${BASE_URL}/payments/students`, { headers });
-                const stuData = await stuRes.json();
-                if (!stuRes.ok) throw new Error(stuData.message || "Failed to load students.");
-
-                const feeRes = await fetch(`${BASE_URL}/fees`, { headers });
-                const feeData = await feeRes.json();
-                if (!feeRes.ok) throw new Error(feeData.message || "Failed to load fees.");
-
+                const stuData = await getStudentsApi(token);
+                const feeData = await getFeesApi(token);
                 setStudents(stuData.students || []);
                 setFees(feeData.feeStructures || []);
             } catch (err) {
@@ -53,7 +48,6 @@ export default function RecordPayment({ user }) {
         loadData();
     }, []);
 
-    // When fee structure changes, load pending amount for that fee for the student
     useEffect(() => {
         const loadPending = async () => {
             if (!studentId || !feeStructureId) {
@@ -63,12 +57,7 @@ export default function RecordPayment({ user }) {
 
             try {
                 const token = localStorage.getItem("token");
-                const res = await fetch(`${BASE_URL}/payments/student/${studentId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message || "Failed to load payments.");
-
+                const data = await getStudentPaymentsApi(token, studentId);
                 const paymentsForFee = (data.payments || []).filter(
                     (p) => p.feeStructure && p.feeStructure._id === feeStructureId
                 );
@@ -93,29 +82,19 @@ export default function RecordPayment({ user }) {
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${BASE_URL}/payments`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    studentId,
-                    feeStructureId,
-                    amount: Number(amount),
-                    paymentMode,
-                    paymentDate,
-                    transactionRef
-                })
+            const data = await recordPaymentApi(token, {
+                studentId,
+                feeStructureId,
+                amount: Number(amount),
+                paymentMode,
+                paymentDate,
+                transactionRef
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Failed to record payment.");
 
             setSuccess(
                 `Payment recorded. Receipt No: ${data.payment.receiptNo}`
             );
 
-            // Reset form
             setStudentId("");
             setFeeStructureId("");
             setAmount("");
@@ -175,32 +154,36 @@ export default function RecordPayment({ user }) {
                             id="feeStructureId"
                             value={feeStructureId}
                             onChange={(e) => setFeeStructureId(e.target.value)}
-                            required
                             disabled={!studentId}
+                            required
                         >
-                            <option value="">Select fee head</option>
+                            <option value="">
+                                {studentId ? "Select fee head" : "First select a student"}
+                            </option>
                             {filteredFees.map((f) => (
                                 <option key={f._id} value={f._id}>
-                                    {f.feeHead} — ₹{f.amount.toLocaleString("en-IN")}
+                                    {f.feeHead} — ₹{Number(f.amount).toLocaleString("en-IN")}
                                 </option>
                             ))}
                         </select>
                     </div>
 
                     {pendingForFee !== null && (
-                        <p className="auth-message success">
-                            Pending balance for this fee head: ₹
-                            {pendingForFee.toLocaleString("en-IN")}
-                        </p>
+                        <div className="form-hint">
+                            Pending for this head:{" "}
+                            <strong>
+                                ₹{Number(pendingForFee).toLocaleString("en-IN")}
+                            </strong>
+                        </div>
                     )}
 
                     <div className="form-field">
-                        <label htmlFor="amount">Amount (₹)</label>
+                        <label htmlFor="amount">Amount to Pay (₹)</label>
                         <input
                             id="amount"
                             type="number"
                             min="1"
-                            max={pendingForFee || undefined}
+                            max={pendingForFee !== null ? pendingForFee : undefined}
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="Enter amount"
@@ -216,7 +199,7 @@ export default function RecordPayment({ user }) {
                             onChange={(e) => setPaymentMode(e.target.value)}
                             required
                         >
-                            <option value="">Select mode</option>
+                            <option value="">Select payment mode</option>
                             {PAYMENT_MODES.map((mode) => (
                                 <option key={mode} value={mode}>
                                     {mode}
@@ -232,6 +215,7 @@ export default function RecordPayment({ user }) {
                             type="date"
                             value={paymentDate}
                             onChange={(e) => setPaymentDate(e.target.value)}
+                            max={new Date().toISOString().split("T")[0]}
                             required
                         />
                     </div>
@@ -244,7 +228,7 @@ export default function RecordPayment({ user }) {
                             id="transactionRef"
                             value={transactionRef}
                             onChange={(e) => setTransactionRef(e.target.value)}
-                            placeholder="e.g. UPI ref / cheque no."
+                            placeholder="UPI Ref ID, Cheque No, etc."
                         />
                     </div>
 
@@ -254,11 +238,7 @@ export default function RecordPayment({ user }) {
                         </p>
                     )}
 
-                    <button
-                        type="submit"
-                        className="submit-btn"
-                        disabled={loading}
-                    >
+                    <button className="submit-btn" type="submit" disabled={loading}>
                         {loading ? "Recording..." : "Record Payment"}
                     </button>
                 </form>

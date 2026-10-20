@@ -1,5 +1,5 @@
 
-/* ===== Global App Styles ===== */
+
 
 #root {
   width: 100%;
@@ -42,7 +42,7 @@ textarea::placeholder {
   color: #a09a9c;
 }
 
-/* ===== Login and Register ===== */
+
 
 .auth-page {
   min-height: 100vh;
@@ -169,7 +169,7 @@ textarea::placeholder {
   font-size: 13px;
 }
 
-/* ===== Dashboard Layout ===== */
+
 
 .dashboard-page {
   min-height: 100vh;
@@ -289,7 +289,7 @@ textarea::placeholder {
   margin: 0;
 }
 
-/* ===== Dashboard Sections ===== */
+
 
 .dashboard-section {
   margin-bottom: 25px;
@@ -331,7 +331,7 @@ textarea::placeholder {
   font-size: 13px;
 }
 
-/* ===== Statistics Cards ===== */
+
 
 .stats-grid {
   display: grid;
@@ -367,7 +367,7 @@ textarea::placeholder {
   font-weight: 800;
 }
 
-/* ===== Forms and Filters ===== */
+
 
 .filter-form {
   display: grid;
@@ -391,7 +391,7 @@ textarea::placeholder {
   margin-top: 5px;
 }
 
-/* ===== Cards and Badges ===== */
+
 
 .request-list {
   display: grid;
@@ -509,7 +509,7 @@ textarea::placeholder {
   line-height: 1.6;
 }
 
-/* ===== Access Denied ===== */
+
 
 .access-denied {
   padding: 35px;
@@ -529,7 +529,7 @@ textarea::placeholder {
   line-height: 1.6;
 }
 
-/* ===== Responsive Design ===== */
+
 
 @media (max-width: 900px) {
   .stats-grid {
@@ -642,7 +642,7 @@ textarea::placeholder {
   }
 }
 
-/* ===== Dashboard Nav ===== */
+
 
 .dashboard-nav {
   display: flex;
@@ -665,7 +665,7 @@ textarea::placeholder {
   color: #b71936;
 }
 
-/* ===== Filter Form ===== */
+
 
 .filter-form {
   display: flex;
@@ -681,7 +681,7 @@ textarea::placeholder {
   margin-bottom: 0;
 }
 
-/* ===== Receipt Page ===== */
+
 
 .receipt-page {
   min-height: 100vh;
@@ -779,7 +779,7 @@ textarea::placeholder {
   justify-content: center;
 }
 
-/* ===== Print CSS ===== */
+
 
 @media print {
   .no-print {

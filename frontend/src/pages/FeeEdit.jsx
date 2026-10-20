@@ -1,10 +1,8 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout";
 import FeeForm from "../components/FeeForm";
-
-const API_URL = `${import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api"}/fees`;
+import { getFeeByIdApi, updateFeeApi } from "../api/feeApi";
 
 export default function FeeEdit({ user }) {
     const navigate = useNavigate();
@@ -24,11 +22,7 @@ export default function FeeEdit({ user }) {
         const loadFee = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const res = await fetch(`${API_URL}/${id}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message || "Failed to load fee structure.");
+                const data = await getFeeByIdApi(token, id);
                 const fee = data.feeStructure;
 
                 setForm({
@@ -63,16 +57,7 @@ export default function FeeEdit({ user }) {
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${API_URL}/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify(form)
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Failed to update fee structure.");
+            await updateFeeApi(token, id, form);
             navigate("/admin/fees");
         } catch (err) {
             setError(err.message || "Failed to update fee structure.");
@@ -88,13 +73,13 @@ export default function FeeEdit({ user }) {
                     <span className="section-icon">✏️</span>
                     <div>
                         <h2>Edit Fee Structure</h2>
-                        <p>Update the fee entry details.</p>
+                        <p>Update fee details.</p>
                     </div>
                 </div>
 
-                {loading && <p>Loading fee structure...</p>}
-
-                {!loading && (
+                {loading ? (
+                    <p>Loading fee details...</p>
+                ) : (
                     <FeeForm
                         form={form}
                         onChange={handleChange}

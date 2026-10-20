@@ -1,10 +1,8 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout";
 import FeeForm from "../components/FeeForm";
-
-const API_URL = `${import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api"}/fees`;
+import { createFeeApi } from "../api/feeApi";
 
 const EMPTY_FORM = {
     course: "",
@@ -34,16 +32,7 @@ export default function FeeNew({ user }) {
 
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(API_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify(form)
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Failed to create fee structure.");
+            await createFeeApi(token, form);
             navigate("/admin/fees");
         } catch (err) {
             setError(err.message || "Failed to create fee structure.");

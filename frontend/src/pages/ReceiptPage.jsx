@@ -1,8 +1,6 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
-const API_URL = `${import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api"}/payments/receipt`;
+import { getReceiptApi } from "../api/feeApi";
 
 export default function ReceiptPage() {
     const { receiptNo } = useParams();
@@ -19,11 +17,7 @@ export default function ReceiptPage() {
 
             try {
                 const token = localStorage.getItem("token");
-                const res = await fetch(`${API_URL}/${receiptNo}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message || "Failed to load receipt.");
+                const data = await getReceiptApi(token, receiptNo);
                 setPayment(data.payment);
             } catch (err) {
                 setError(err.message || "Failed to load receipt.");
@@ -70,7 +64,6 @@ export default function ReceiptPage() {
     return (
         <div className="receipt-page">
             <div className="receipt-card">
-                {/* Header */}
                 <div className="receipt-header">
                     <div className="receipt-brand">🧾 FeeDesk</div>
                     <div className="receipt-title">Payment Receipt</div>
@@ -82,7 +75,6 @@ export default function ReceiptPage() {
 
                 <hr className="receipt-divider" />
 
-                {/* Student info */}
                 <div className="receipt-section">
                     <h3>Student Details</h3>
                     <div className="receipt-row">
@@ -105,7 +97,6 @@ export default function ReceiptPage() {
 
                 <hr className="receipt-divider" />
 
-                {/* Payment info */}
                 <div className="receipt-section">
                     <h3>Payment Details</h3>
                     <div className="receipt-row">
@@ -150,7 +141,6 @@ export default function ReceiptPage() {
 
                 <hr className="receipt-divider" />
 
-                {/* Total */}
                 <div className="receipt-total">
                     <span>Amount Paid</span>
                     <span>{formatCurrency(payment.amount)}</span>
@@ -161,7 +151,6 @@ export default function ReceiptPage() {
                     physical signature.
                 </p>
 
-                {/* Actions — hidden during print */}
                 <div className="receipt-actions no-print">
                     <button
                         type="button"
