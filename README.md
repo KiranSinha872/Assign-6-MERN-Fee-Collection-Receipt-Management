@@ -65,12 +65,11 @@
 FeeCollection&ReceiptManagementSystem/
 ├── backend/
 │   ├── Config/
-│   │   └── db.js                  # MongoDB Atlas connection with error handling
+│   │   └── db.js                  # MongoDB Atlas connection
 │   ├── Controllers/
-│   │   ├── authController.js       # Register, login, current user & profile
+│   │   ├── authController.js       # Register, login, students list
 │   │   ├── feeController.js        # Fee structure CRUD
 │   │   ├── paymentController.js    # Record payment, receipts, receipt number generator
-│   │   ├── studentController.js    # Student listings and fee calculations
 │   │   └── dashboardController.js  # Overall metrics, defaulters & mode-wise collection
 │   ├── Middleware/
 │   │   ├── authMiddleware.js       # JWT verification
@@ -78,13 +77,11 @@ FeeCollection&ReceiptManagementSystem/
 │   ├── Models/
 │   │   ├── User.js                 # User schema (Admin / Student)
 │   │   ├── FeeStructure.js         # Fee structure schema
-│   │   ├── Payment.js              # Payment transactions schema
-│   │   └── Counter.js              # Atomic sequence counter for receipts
+│   │   └── Payment.js              # Payment transactions schema
 │   ├── Routes/
 │   │   ├── authRoutes.js
 │   │   ├── feeRoutes.js
 │   │   ├── paymentRoutes.js
-│   │   ├── studentRoutes.js
 │   │   └── dashboardRoutes.js
 │   ├── seed.js                     # Sample database seed script
 │   ├── server.js                   # Express server entry point
@@ -94,27 +91,25 @@ FeeCollection&ReceiptManagementSystem/
 ├── frontend/
 │   ├── src/
 │   │   ├── api/
-│   │   │   ├── authApi.js          # Auth requests
-│   │   │   ├── feeApi.js           # Fee structure endpoints
-│   │   │   ├── paymentApi.js       # Payments & receipts endpoints
-│   │   │   └── dashboardApi.js     # Dashboard metrics & students
+│   │   │   ├── authApi.js          # Authentication API calls
+│   │   │   └── feeApi.js           # Fee, payment, student, and dashboard API calls
 │   │   ├── components/
 │   │   │   ├── DashboardLayout.jsx # Common layout with role-based navigation & header
-│   │   │   ├── FeeForm.jsx         # Reusable form component for Fee Structure
+│   │   │   ├── FeeForm.jsx         # Reusable form component for Add & Edit Fee Structure
 │   │   │   └── LoginRegister.jsx   # Authentication form
 │   │   ├── pages/
-│   │   │   ├── AdminDashboard.jsx  # Overview metrics, charts & defaulters
-│   │   │   ├── FeeList.jsx         # Admin fee structures list
+│   │   │   ├── AdminDashboard.jsx  # Overview metrics, defaulters & student directory
+│   │   │   ├── FeeList.jsx         # Admin fee structures list with filters
 │   │   │   ├── FeeNew.jsx          # Create fee structure
 │   │   │   ├── FeeEdit.jsx         # Edit fee structure
-│   │   │   ├── RecordPayment.jsx   # Record payment modal/form with validation
-│   │   │   ├── StudentList.jsx     # Directory of students
+│   │   │   ├── RecordPayment.jsx   # Record payment with balance validation
 │   │   │   ├── StudentFees.jsx     # Admin ledger view for single student
 │   │   │   ├── MyFees.jsx          # Student fee summary & receipts
 │   │   │   └── ReceiptPage.jsx     # Printable receipt page
-│   │   ├── App.css                 # Comprehensive styling + print CSS
+│   │   ├── App.css                 # Styling + print CSS
 │   │   ├── App.jsx                 # Route definitions and auth state
-│   │   └── main.jsx
+│   │   ├── index.css
+│   │   └── main.jsx                # BrowserRouter root entry
 │   ├── index.html
 │   ├── .env.example
 │   └── package.json
@@ -207,22 +202,17 @@ Open `http://localhost:5173` in your browser.
 | `PUT` | `/api/fees/:id` | Admin | Update fee structure |
 | `DELETE`| `/api/fees/:id` | Admin | Remove fee structure |
 
-### Payments (`/api/payments`)
+### Payments & Students (`/api/payments`)
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/payments` | Admin | Record payment (validates amount <= pending) |
 | `GET` | `/api/payments/my` | Student | Get payment history for authenticated student |
-| `GET` | `/api/payments/receipt/:receiptNo` | Authenticated | Fetch full receipt details by receipt number |
-| `GET` | `/api/payments/student/:studentId` | Admin | Get payments recorded for a specific student |
-
-### Students & Ledgers (`/api/students`)
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/students` | Admin | List all students with computed balances |
-| `GET` | `/api/students/:id/fees` | Admin | Get complete fee breakdown for a student |
+| `GET` | `/api/payments/receipt/:receiptNo` | Authenticated | Fetch receipt details by receipt number |
+| `GET` | `/api/payments/student/:id` | Admin | Get payments recorded for a specific student |
+| `GET` | `/api/payments/students` | Admin | List all students with course & roll number |
+| `GET` | `/api/payments/students/:id/fees` | Admin | Complete fee & dues breakdown for a student |
 
 ### Dashboard & Analytics (`/api/dashboard`)
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/dashboard/stats` | Admin | Summary totals, mode distribution & defaulters |
-| `GET` | `/api/dashboard/student-summary` | Student | Current student's total payable, paid & pending |
+| `GET` | `/api/dashboard` | Admin | Summary totals, mode distribution & defaulters |
