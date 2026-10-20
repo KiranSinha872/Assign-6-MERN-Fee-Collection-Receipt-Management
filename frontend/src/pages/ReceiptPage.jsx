@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5002/api"}/payments/receipt`;
+const API_URL = `${import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api"}/payments/receipt`;
 
 export default function ReceiptPage() {
     const { receiptNo } = useParams();

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout";
 
-const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5002/api"}/fees`;
+const API_URL = `${import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api"}/fees`;
 
 export default function FeeList({ user }) {
     const [fees, setFees] = useState([]);

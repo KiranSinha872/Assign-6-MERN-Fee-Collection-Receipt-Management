@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout";
 import FeeForm from "../components/FeeForm";
 
-const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5002/api"}/fees`;
+const API_URL = `${import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api"}/fees`;
 
 export default function FeeEdit({ user }) {
     const navigate = useNavigate();

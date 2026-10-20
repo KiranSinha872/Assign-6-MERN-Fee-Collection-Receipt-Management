@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5002/api"}/auth`;
+const API_URL = `${import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api"}/auth`;
 
 export default function LoginRegister({ onLogin, initialMode = "login" }) {
     const navigate = useNavigate();

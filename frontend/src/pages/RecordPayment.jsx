@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5002/api";
+const BASE_URL = import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api";
 
 const PAYMENT_MODES = ["Cash", "UPI", "Card"];
 
