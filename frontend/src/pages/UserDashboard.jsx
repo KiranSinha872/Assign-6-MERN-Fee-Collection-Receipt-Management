@@ -3,7 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import DashboardLayout from "../components/DashboardLayout";
 
-const API_URL = "http://localhost:5002/api";
+const API_URL = "https://bloodbank-4yqt.onrender.com/api";
 
 const BLOOD_GROUPS = [
   "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-",
