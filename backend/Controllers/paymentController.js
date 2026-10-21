@@ -2,8 +2,6 @@ const Payment = require("../Models/Payment");
 const FeeStructure = require("../Models/FeeStructure");
 const User = require("../Models/User");
 
-// ── Payment handlers ──────────────────────────────────────────────────────────
-
 const recordPayment = async (req, res) => {
     try {
         const {
@@ -178,8 +176,6 @@ const getPaymentByReceiptNo = async (req, res) => {
         });
     }
 };
-
-// ── Student handlers ──────────────────────────────────────────────────────────
 
 const getStudents = async (req, res) => {
     try {

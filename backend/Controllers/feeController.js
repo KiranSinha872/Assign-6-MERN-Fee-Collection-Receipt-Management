@@ -1,7 +1,6 @@
 const FeeStructure = require("../Models/FeeStructure");
 const User = require("../Models/User");
 
-// Admin: create a new fee structure entry
 const createFeeStructure = async (req, res) => {
     try {
         const { course, feeHead, amount, dueDate } = req.body;
@@ -40,7 +39,6 @@ const createFeeStructure = async (req, res) => {
     }
 };
 
-// Admin: get all fee structures; Student: get only their course's fee structures
 const getFeeStructures = async (req, res) => {
     try {
         let filter = {};
@@ -76,7 +74,6 @@ const getFeeStructures = async (req, res) => {
     }
 };
 
-// Get single fee structure by id
 const getFeeStructureById = async (req, res) => {
     try {
         const feeStructure = await FeeStructure.findById(req.params.id)
@@ -102,7 +99,6 @@ const getFeeStructureById = async (req, res) => {
     }
 };
 
-// Admin: update a fee structure
 const updateFeeStructure = async (req, res) => {
     try {
         const { course, feeHead, amount, dueDate } = req.body;
@@ -153,7 +149,6 @@ const updateFeeStructure = async (req, res) => {
     }
 };
 
-// Admin: delete a fee structure
 const deleteFeeStructure = async (req, res) => {
     try {
         const feeStructure = await FeeStructure.findByIdAndDelete(req.params.id);

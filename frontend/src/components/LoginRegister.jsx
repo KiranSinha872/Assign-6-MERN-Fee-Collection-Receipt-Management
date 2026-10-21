@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginApi, registerApi } from "../api/authApi";
+
+const API_URL = import.meta.env.VITE_API_URL || "https://assign-6-mern-fee-collection-receipt-g7gj.onrender.com/api";
 
 export default function LoginRegister({ onLogin, initialMode = "login" }) {
     const navigate = useNavigate();
@@ -40,71 +41,143 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
 
         try {
             if (isLogin) {
-                const data = await loginApi(
-                    form.email.trim().toLowerCase(),
-                    form.password
-                );
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: form.email.trim().toLowerCase(),
+                        password: form.password
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || "Login failed");
 
-                const { token, user } = data;
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data.user));
 
-                localStorage.setItem("token", token);
-                localStorage.setItem("user", JSON.stringify(user));
+                if (onLogin) onLogin(data.user);
 
-                if (onLogin) onLogin(user);
-
-                navigate(user.role === "Admin" ? "/admin/dashboard" : "/my-fees", {
+                navigate(data.user.role === "Admin" ? "/admin" : "/user", {
                     replace: true
                 });
             } else {
-                const data = await registerApi({
-                    name: form.name.trim(),
-                    email: form.email.trim().toLowerCase(),
-                    password: form.password,
-                    phone: form.phone.trim(),
-                    rollNumber: form.rollNumber.trim(),
-                    course: form.course.trim()
+                const res = await fetch(`${API_URL}/auth/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: form.name.trim(),
+                        email: form.email.trim().toLowerCase(),
+                        password: form.password,
+                        phone: form.phone.trim(),
+                        rollNumber: form.rollNumber.trim().toUpperCase(),
+                        course: form.course
+                    })
                 });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || "Registration failed");
 
-                setMessage(data.message || "Registration successful!");
-                setError(false);
+                setMessage(data.message || "Account created successfully! Please log in.");
                 setIsLogin(true);
-
-                setForm((previous) => ({
-                    ...previous,
-                    password: ""
-                }));
             }
         } catch (err) {
             setError(true);
-            setMessage(err.message || "Something went wrong. Please try again.");
+            setMessage(err.message || "Something went wrong.");
         } finally {
             setLoading(false);
         }
     };
 
-    return (
-        <div className="auth-page">
-            <div className="auth-card">
-                <div className="auth-logo">🧾</div>
+    const inputStyle = {
+        width: "100%",
+        padding: "8px 12px",
+        border: "1px solid #ccc",
+        borderRadius: "4px",
+        fontSize: "14px",
+        boxSizing: "border-box"
+    };
 
-                <h1>FeeDesk</h1>
-                <p className="auth-subtitle">
-                    Fee Collection & Receipt Management System
+    const fieldStyle = {
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px",
+        marginBottom: "12px",
+        textAlign: "left"
+    };
+
+    const labelStyle = {
+        fontSize: "13px",
+        fontWeight: "bold",
+        color: "#444"
+    };
+
+    return (
+        <div
+            style={{
+                minHeight: "100vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#f4f6f8",
+                fontFamily: "Arial, sans-serif",
+                padding: "20px"
+            }}
+        >
+            <div
+                style={{
+                    width: "100%",
+                    maxWidth: "420px",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #ddd",
+                    borderRadius: "8px",
+                    padding: "30px 24px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                    textAlign: "center"
+                }}
+            >
+                <div style={{ fontSize: "36px", marginBottom: "8px" }}>🧾</div>
+                <h1 style={{ margin: "0 0 6px 0", fontSize: "22px", color: "#222" }}>
+                    FeeDesk
+                </h1>
+                <p style={{ margin: "0 0 20px 0", fontSize: "14px", color: "#666" }}>
+                    {isLogin ? "Sign in to your account" : "Register a new student account"}
                 </p>
 
-                <div className="auth-tabs">
+                <div
+                    style={{
+                        display: "flex",
+                        gap: "8px",
+                        marginBottom: "20px"
+                    }}
+                >
                     <button
                         type="button"
-                        className={isLogin ? "active" : ""}
                         onClick={() => switchMode(true)}
+                        style={{
+                            flex: 1,
+                            padding: "8px",
+                            border: "1px solid #007bff",
+                            backgroundColor: isLogin ? "#007bff" : "#ffffff",
+                            color: isLogin ? "#ffffff" : "#007bff",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontWeight: "bold"
+                        }}
                     >
                         Login
                     </button>
-
                     <button
                         type="button"
-                        className={!isLogin ? "active" : ""}
                         onClick={() => switchMode(false)}
+                        style={{
+                            flex: 1,
+                            padding: "8px",
+                            border: "1px solid #007bff",
+                            backgroundColor: !isLogin ? "#007bff" : "#ffffff",
+                            color: !isLogin ? "#ffffff" : "#007bff",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontWeight: "bold"
+                        }}
                     >
                         Register
                     </button>
@@ -113,8 +186,8 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                 <form onSubmit={handleSubmit}>
                     {!isLogin && (
                         <>
-                            <div className="form-field">
-                                <label htmlFor="name">Full Name</label>
+                            <div style={fieldStyle}>
+                                <label htmlFor="name" style={labelStyle}>Full Name</label>
                                 <input
                                     id="name"
                                     name="name"
@@ -122,11 +195,12 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                                     onChange={handleChange}
                                     placeholder="Enter full name"
                                     required
+                                    style={inputStyle}
                                 />
                             </div>
 
-                            <div className="form-field">
-                                <label htmlFor="phone">Phone Number</label>
+                            <div style={fieldStyle}>
+                                <label htmlFor="phone" style={labelStyle}>Phone Number</label>
                                 <input
                                     id="phone"
                                     name="phone"
@@ -135,11 +209,12 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                                     onChange={handleChange}
                                     placeholder="Enter phone number"
                                     required
+                                    style={inputStyle}
                                 />
                             </div>
 
-                            <div className="form-field">
-                                <label htmlFor="rollNumber">Roll Number</label>
+                            <div style={fieldStyle}>
+                                <label htmlFor="rollNumber" style={labelStyle}>Roll Number</label>
                                 <input
                                     id="rollNumber"
                                     name="rollNumber"
@@ -147,17 +222,19 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                                     onChange={handleChange}
                                     placeholder="e.g. CS2401"
                                     required
+                                    style={inputStyle}
                                 />
                             </div>
 
-                            <div className="form-field">
-                                <label htmlFor="course">Course</label>
+                            <div style={fieldStyle}>
+                                <label htmlFor="course" style={labelStyle}>Course</label>
                                 <select
                                     id="course"
                                     name="course"
                                     value={form.course}
                                     onChange={handleChange}
                                     required
+                                    style={inputStyle}
                                 >
                                     <option value="">Select course</option>
                                     <option value="B.Tech CSE">B.Tech CSE</option>
@@ -168,8 +245,8 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                         </>
                     )}
 
-                    <div className="form-field">
-                        <label htmlFor="email">Email Address</label>
+                    <div style={fieldStyle}>
+                        <label htmlFor="email" style={labelStyle}>Email Address</label>
                         <input
                             id="email"
                             name="email"
@@ -179,11 +256,12 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                             placeholder="Enter email"
                             autoComplete="email"
                             required
+                            style={inputStyle}
                         />
                     </div>
 
-                    <div className="form-field">
-                        <label htmlFor="password">Password</label>
+                    <div style={fieldStyle}>
+                        <label htmlFor="password" style={labelStyle}>Password</label>
                         <input
                             id="password"
                             name="password"
@@ -193,22 +271,43 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                             placeholder="Enter password"
                             autoComplete={isLogin ? "current-password" : "new-password"}
                             required
+                            style={inputStyle}
                         />
                     </div>
 
                     {message && (
-                        <p
-                            className={`auth-message ${error ? "error" : "success"}`}
+                        <div
                             role="status"
+                            style={{
+                                padding: "8px 12px",
+                                marginBottom: "15px",
+                                borderRadius: "4px",
+                                fontSize: "13px",
+                                textAlign: "left",
+                                backgroundColor: error ? "#f8d7da" : "#d4edda",
+                                color: error ? "#721c24" : "#155724",
+                                border: `1px solid ${error ? "#f5c6cb" : "#c3e6cb"}`
+                            }}
                         >
                             {message}
-                        </p>
+                        </div>
                     )}
 
                     <button
                         type="submit"
-                        className="auth-submit"
                         disabled={loading}
+                        style={{
+                            width: "100%",
+                            padding: "10px",
+                            backgroundColor: "#007bff",
+                            color: "#ffffff",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: loading ? "not-allowed" : "pointer",
+                            fontSize: "15px",
+                            fontWeight: "bold",
+                            marginTop: "8px"
+                        }}
                     >
                         {loading
                             ? "Please wait..."
@@ -218,11 +317,20 @@ export default function LoginRegister({ onLogin, initialMode = "login" }) {
                     </button>
                 </form>
 
-                <p className="auth-switch">
+                <p style={{ marginTop: "16px", fontSize: "13px", color: "#666" }}>
                     {isLogin ? "New student? " : "Already registered? "}
                     <button
                         type="button"
                         onClick={() => switchMode(!isLogin)}
+                        style={{
+                            background: "none",
+                            border: "none",
+                            color: "#007bff",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            padding: 0,
+                            textDecoration: "underline"
+                        }}
                     >
                         {isLogin ? "Register here" : "Login here"}
                     </button>

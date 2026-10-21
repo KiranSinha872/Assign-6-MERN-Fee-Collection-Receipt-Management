@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
         rollNumber: {
             type: String,
             unique: true,
-            sparse: true // only unique when present (Admin has no rollNumber)
+            sparse: true
         },
         course: {
             type: String

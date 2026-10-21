@@ -69,7 +69,7 @@ FeeCollection&ReceiptManagementSystem/
 │   ├── Controllers/
 │   │   ├── authController.js       # Register, login, students list
 │   │   ├── feeController.js        # Fee structure CRUD
-│   │   ├── paymentController.js    # Record payment, receipts, receipt number generator
+│   │   ├── paymentController.js    # Record payment, receipts, sequential numbering
 │   │   └── dashboardController.js  # Overall metrics, defaulters & mode-wise collection
 │   ├── Middleware/
 │   │   ├── authMiddleware.js       # JWT verification
@@ -85,35 +85,29 @@ FeeCollection&ReceiptManagementSystem/
 │   │   └── dashboardRoutes.js
 │   ├── seed.js                     # Sample database seed script
 │   ├── server.js                   # Express server entry point
-│   ├── .env.example
+│   ├── .env
 │   └── package.json
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── api/
-│   │   │   ├── authApi.js          # Authentication API calls
-│   │   │   └── feeApi.js           # Fee, payment, student, and dashboard API calls
 │   │   ├── components/
-│   │   │   ├── DashboardLayout.jsx # Common layout with role-based navigation & header
-│   │   │   ├── FeeForm.jsx         # Reusable form component for Add & Edit Fee Structure
-│   │   │   └── LoginRegister.jsx   # Authentication form
+│   │   │   ├── DashboardLayout.jsx # Role-based navigation, header & logout
+│   │   │   └── LoginRegister.jsx   # Authentication form (Login & Register)
 │   │   ├── pages/
-│   │   │   ├── AdminDashboard.jsx  # Overview metrics, defaulters & student directory
-│   │   │   ├── FeeList.jsx         # Admin fee structures list with filters
-│   │   │   ├── FeeNew.jsx          # Create fee structure
-│   │   │   ├── FeeEdit.jsx         # Edit fee structure
-│   │   │   ├── RecordPayment.jsx   # Record payment with balance validation
-│   │   │   ├── StudentFees.jsx     # Admin ledger view for single student
-│   │   │   ├── MyFees.jsx          # Student fee summary & receipts
-│   │   │   └── ReceiptPage.jsx     # Printable receipt page
-│   │   ├── App.css                 # Styling + print CSS
-│   │   ├── App.jsx                 # Route definitions and auth state
+│   │   │   ├── AdminDashboard.jsx  # Overview metrics, fee CRUD, record payment & student ledgers
+│   │   │   └── UserDashboard.jsx   # Student fee summary, applicable heads & printable receipts
+│   │   ├── App.css
+│   │   ├── App.jsx                 # Routes & auth protection
 │   │   ├── index.css
-│   │   └── main.jsx                # BrowserRouter root entry
+│   │   └── main.jsx                # React root entry
+│   ├── public/
+│   │   └── favicon.svg
 │   ├── index.html
-│   ├── .env.example
+│   ├── vite.config.js
+│   ├── .env
 │   └── package.json
 │
+├── package.json                    # Root convenience scripts
 └── README.md
 ```
 

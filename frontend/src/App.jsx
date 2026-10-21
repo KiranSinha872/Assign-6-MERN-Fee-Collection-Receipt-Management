@@ -2,19 +2,8 @@ import { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import LoginRegister from "./components/LoginRegister";
-import DashboardLayout from "./components/DashboardLayout";
-
 import AdminDashboard from "./pages/AdminDashboard";
-import FeeList from "./pages/FeeList";
-import FeeNew from "./pages/FeeNew";
-import FeeEdit from "./pages/FeeEdit";
-import RecordPayment from "./pages/RecordPayment";
-import StudentFees from "./pages/StudentFees";
-
-import MyFees from "./pages/MyFees";
-import ReceiptPage from "./pages/ReceiptPage";
-
-import "./App.css";
+import UserDashboard from "./pages/UserDashboard";
 
 function getStoredUser() {
     try {
@@ -31,27 +20,16 @@ function ProtectedRoute({ requiredRole, user, children }) {
         return <Navigate to="/login" replace />;
     }
 
-    if (user.role !== requiredRole) {
+    if (requiredRole && user.role !== requiredRole) {
         return (
             <Navigate
-                to={user.role === "Admin" ? "/admin/dashboard" : "/my-fees"}
+                to={user.role === "Admin" ? "/admin" : "/user"}
                 replace
             />
         );
     }
 
     return children;
-}
-
-function NotFound({ user }) {
-    return (
-        <DashboardLayout title="Page Not Found" user={user}>
-            <section className="dashboard-section">
-                <h2>Page not found</h2>
-                <p>The page you requested does not exist.</p>
-            </section>
-        </DashboardLayout>
-    );
 }
 
 export default function App() {
@@ -66,104 +44,78 @@ export default function App() {
             <Route
                 path="/"
                 element={
-                    user
-                        ? <Navigate
-                            to={user.role === "Admin" ? "/admin/dashboard" : "/my-fees"}
+                    user ? (
+                        <Navigate
+                            to={user.role === "Admin" ? "/admin" : "/user"}
                             replace
-                          />
-                        : <LoginRegister onLogin={handleLogin} />
+                        />
+                    ) : (
+                        <LoginRegister onLogin={handleLogin} />
+                    )
                 }
             />
             <Route
                 path="/login"
                 element={
-                    user
-                        ? <Navigate
-                            to={user.role === "Admin" ? "/admin/dashboard" : "/my-fees"}
+                    user ? (
+                        <Navigate
+                            to={user.role === "Admin" ? "/admin" : "/user"}
                             replace
-                          />
-                        : <LoginRegister onLogin={handleLogin} initialMode="login" />
+                        />
+                    ) : (
+                        <LoginRegister onLogin={handleLogin} initialMode="login" />
+                    )
                 }
             />
             <Route
                 path="/register"
                 element={
-                    user
-                        ? <Navigate
-                            to={user.role === "Admin" ? "/admin/dashboard" : "/my-fees"}
+                    user ? (
+                        <Navigate
+                            to={user.role === "Admin" ? "/admin" : "/user"}
                             replace
-                          />
-                        : <LoginRegister onLogin={handleLogin} initialMode="register" />
+                        />
+                    ) : (
+                        <LoginRegister onLogin={handleLogin} initialMode="register" />
+                    )
                 }
             />
 
+            <Route
+                path="/admin"
+                element={
+                    <ProtectedRoute requiredRole="Admin" user={user}>
+                        <AdminDashboard />
+                    </ProtectedRoute>
+                }
+            />
             <Route
                 path="/admin/dashboard"
-                element={
-                    <ProtectedRoute requiredRole="Admin" user={user}>
-                        <AdminDashboard user={user} />
-                    </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/admin/fees"
-                element={
-                    <ProtectedRoute requiredRole="Admin" user={user}>
-                        <FeeList user={user} />
-                    </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/admin/fees/new"
-                element={
-                    <ProtectedRoute requiredRole="Admin" user={user}>
-                        <FeeNew user={user} />
-                    </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/admin/fees/:id/edit"
-                element={
-                    <ProtectedRoute requiredRole="Admin" user={user}>
-                        <FeeEdit user={user} />
-                    </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/admin/payments/new"
-                element={
-                    <ProtectedRoute requiredRole="Admin" user={user}>
-                        <RecordPayment user={user} />
-                    </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/admin/students/:id/fees"
-                element={
-                    <ProtectedRoute requiredRole="Admin" user={user}>
-                        <StudentFees user={user} />
-                    </ProtectedRoute>
-                }
+                element={<Navigate to="/admin" replace />}
             />
 
             <Route
-                path="/my-fees"
+                path="/user"
                 element={
                     <ProtectedRoute requiredRole="Student" user={user}>
-                        <MyFees user={user} />
+                        <UserDashboard />
                     </ProtectedRoute>
                 }
             />
             <Route
-                path="/receipts/:receiptNo"
-                element={
-                    user
-                        ? <ReceiptPage />
-                        : <Navigate to="/login" replace />
-                }
+                path="/my-fees"
+                element={<Navigate to="/user" replace />}
             />
 
-            <Route path="*" element={<NotFound user={user} />} />
+            <Route
+                path="*"
+                element={
+                    <Navigate
+                        to={user ? (user.role === "Admin" ? "/admin" : "/user") : "/login"}
+                        replace
+                    />
+                }
+            />
         </Routes>
     );
 }

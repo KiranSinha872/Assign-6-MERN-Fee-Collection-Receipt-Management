@@ -1,16 +1,15 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export default function DashboardLayout({ title, user, children }) {
+export default function DashboardLayout({ title, children }) {
     const navigate = useNavigate();
 
-    let currentUser = user;
-    if (!currentUser) {
+    const currentUser = (() => {
         try {
-            currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+            return JSON.parse(localStorage.getItem("user") || "{}");
         } catch {
-            currentUser = {};
+            return {};
         }
-    }
+    })();
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -18,190 +17,132 @@ export default function DashboardLayout({ title, user, children }) {
         navigate("/login", { replace: true });
     };
 
-    const isAdmin = currentUser.role === "Admin";
-
     return (
-        <div className="dashboard-page">
-            <style>{`
-                .dashboard-page {
-                    min-height: 100vh;
-                    display: flex;
-                    flex-direction: column;
-                    background-color: #f8fafc;
-                    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                    color: #1e293b;
-                }
-                .dashboard-header {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 12px 24px;
-                    background: #ffffff;
-                    border-bottom: 1px solid #e2e8f0;
-                    flex-wrap: wrap;
-                    gap: 12px;
-                }
-                .dashboard-brand {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    font-size: 18px;
-                    font-weight: 700;
-                    color: #0f172a;
-                }
-                .dashboard-logo {
-                    font-size: 22px;
-                }
-                .dashboard-nav {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    flex-wrap: wrap;
-                }
-                .dashboard-nav a {
-                    text-decoration: none;
-                    color: #475569;
-                    font-size: 14px;
-                    font-weight: 500;
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    transition: background 0.15s, color 0.15s;
-                }
-                .dashboard-nav a:hover {
-                    background: #f1f5f9;
-                    color: #0f172a;
-                }
-                .dashboard-nav a.active {
-                    background: #2563eb;
-                    color: #ffffff;
-                }
-                .dashboard-user {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                }
-                .dashboard-user-info {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-                .dashboard-user-name {
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: #1e293b;
-                }
-                .dashboard-user-role {
-                    font-size: 11px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    background: #e0e7ff;
-                    color: #3730a3;
-                    padding: 2px 8px;
-                    border-radius: 12px;
-                }
-                .logout-btn {
-                    background: #fee2e2;
-                    color: #991b1b;
-                    border: 1px solid #fecaca;
-                    padding: 6px 14px;
-                    border-radius: 6px;
-                    font-size: 13px;
-                    font-weight: 500;
-                    cursor: pointer;
-                    transition: background 0.15s;
-                }
-                .logout-btn:hover {
-                    background: #fca5a5;
-                }
-                .dashboard-content {
-                    flex: 1;
-                    max-width: 1100px;
-                    width: 100%;
-                    margin: 0 auto;
-                    padding: 24px 20px;
-                    box-sizing: border-box;
-                }
-                .dashboard-heading {
-                    margin-bottom: 24px;
-                }
-                .dashboard-greeting {
-                    margin: 0 0 4px 0;
-                    font-size: 13px;
-                    color: #64748b;
-                }
-                .dashboard-heading h1 {
-                    margin: 0;
-                    font-size: 24px;
-                    color: #0f172a;
-                    font-weight: 700;
-                }
-                .dashboard-footer {
-                    text-align: center;
-                    padding: 20px;
-                    color: #94a3b8;
-                    font-size: 12px;
-                    border-top: 1px solid #e2e8f0;
-                    background: #ffffff;
-                    margin-top: auto;
-                }
-                .dashboard-footer p {
-                    margin: 0;
-                }
-            `}</style>
-
-            <header className="dashboard-header">
-                <div className="dashboard-brand">
-                    <span className="dashboard-logo">🧾</span>
+        <div
+            style={{
+                minHeight: "100vh",
+                display: "flex",
+                flexDirection: "column",
+                backgroundColor: "#f4f6f8",
+                fontFamily: "Arial, sans-serif",
+                color: "#333333"
+            }}
+        >
+            <header
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "12px 24px",
+                    backgroundColor: "#ffffff",
+                    borderBottom: "1px solid #ddd",
+                    flexWrap: "wrap",
+                    gap: "12px"
+                }}
+            >
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        fontSize: "18px",
+                        fontWeight: "bold",
+                        color: "#222"
+                    }}
+                >
+                    <span style={{ fontSize: "20px" }}>🧾</span>
                     <span>FeeDesk</span>
                 </div>
 
-                <nav className="dashboard-nav">
-                    {isAdmin ? (
-                        <>
-                            <NavLink to="/admin/dashboard">Dashboard</NavLink>
-                            <NavLink to="/admin/fees">Fee Structures</NavLink>
-                            <NavLink to="/admin/payments/new">Record Payment</NavLink>
-                        </>
-                    ) : (
-                        <>
-                            <NavLink to="/my-fees">My Fees</NavLink>
-                        </>
-                    )}
-                </nav>
-
-                <div className="dashboard-user">
-                    <div className="dashboard-user-info">
-                        <span className="dashboard-user-name">
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px"
+                    }}
+                >
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px"
+                        }}
+                    >
+                        <span style={{ fontSize: "14px", fontWeight: "bold" }}>
                             {currentUser.name || "User"}
                         </span>
-                        <span className="dashboard-user-role">
-                            {currentUser.role || "Student"}
+                        <span
+                            style={{
+                                fontSize: "11px",
+                                fontWeight: "bold",
+                                textTransform: "uppercase",
+                                backgroundColor: "#e2e8f0",
+                                color: "#333333",
+                                padding: "2px 8px",
+                                borderRadius: "10px"
+                            }}
+                        >
+                            {currentUser.role || "User"}
                         </span>
                     </div>
 
                     <button
                         type="button"
-                        className="logout-btn"
                         onClick={handleLogout}
+                        style={{
+                            backgroundColor: "#f8d7da",
+                            color: "#721c24",
+                            border: "1px solid #f5c6cb",
+                            padding: "6px 12px",
+                            borderRadius: "4px",
+                            fontSize: "13px",
+                            cursor: "pointer",
+                            fontWeight: "500"
+                        }}
                     >
                         Logout
                     </button>
                 </div>
             </header>
 
-            <main className="dashboard-content">
-                <div className="dashboard-heading">
-                    <p className="dashboard-greeting">
-                        Welcome back, {currentUser.name || "User"}!
-                    </p>
-                    <h1>{title}</h1>
-                </div>
+            <main
+                style={{
+                    flex: 1,
+                    maxWidth: "1000px",
+                    width: "100%",
+                    margin: "0 auto",
+                    padding: "24px 16px",
+                    boxSizing: "border-box"
+                }}
+            >
+                {title && (
+                    <div style={{ marginBottom: "20px" }}>
+                        <p style={{ margin: "0 0 4px 0", fontSize: "13px", color: "#666" }}>
+                            Welcome back, {currentUser.name || "User"}!
+                        </p>
+                        <h1 style={{ margin: 0, fontSize: "24px", color: "#222" }}>
+                            {title}
+                        </h1>
+                    </div>
+                )}
 
                 {children}
             </main>
 
-            <footer className="dashboard-footer">
-                <p>© {new Date().getFullYear()} FeeDesk — Fee Collection & Receipt Management System</p>
+            <footer
+                style={{
+                    textAlign: "center",
+                    padding: "16px",
+                    color: "#888",
+                    fontSize: "12px",
+                    borderTop: "1px solid #ddd",
+                    backgroundColor: "#ffffff",
+                    marginTop: "auto"
+                }}
+            >
+                <p style={{ margin: 0 }}>
+                    © {new Date().getFullYear()} FeeDesk — Fee Collection & Receipt Management System
+                </p>
             </footer>
         </div>
     );

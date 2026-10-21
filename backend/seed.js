@@ -19,7 +19,6 @@ const makeReceiptGen = () => {
 const seed = async () => {
     await connectDB();
 
-    // Clear existing data
     await User.deleteMany({});
     await FeeStructure.deleteMany({});
     await Payment.deleteMany({});
@@ -28,7 +27,6 @@ const seed = async () => {
 
     console.log("Cleared existing data");
 
-    // ── Admin ─────────────────────────────────────────────────────────────────
     const adminPassword = await bcrypt.hash("admin@1234", 10);
     const admin = await User.create({
         name: "Admin User",
@@ -43,7 +41,6 @@ const seed = async () => {
     console.log("  Password: admin@1234");
     console.log("─────────────────────────────────────────────────────\n");
 
-    // ── Students ──────────────────────────────────────────────────────────────
     const studentPassword = await bcrypt.hash("student@1234", 10);
 
     const studentData = [
@@ -70,20 +67,16 @@ const seed = async () => {
     });
     console.log("────────────────────────────────────────────────────────\n");
 
-    // ── Fee Structures ────────────────────────────────────────────────────────
     const pastDue  = new Date("2026-08-01");
     const futureDue = new Date("2026-12-31");
 
     const feeData = [
-        // B.Tech CSE
         { course: "B.Tech CSE", feeHead: "Tuition",   amount: 50000, dueDate: pastDue,   createdBy: admin._id },
         { course: "B.Tech CSE", feeHead: "Exam",       amount: 5000,  dueDate: pastDue,   createdBy: admin._id },
         { course: "B.Tech CSE", feeHead: "Transport",  amount: 8000,  dueDate: futureDue, createdBy: admin._id },
-        // B.Tech ECE
         { course: "B.Tech ECE", feeHead: "Tuition",   amount: 48000, dueDate: pastDue,   createdBy: admin._id },
         { course: "B.Tech ECE", feeHead: "Exam",       amount: 5000,  dueDate: pastDue,   createdBy: admin._id },
         { course: "B.Tech ECE", feeHead: "Transport",  amount: 8000,  dueDate: futureDue, createdBy: admin._id },
-        // B.Tech ME
         { course: "B.Tech ME",  feeHead: "Tuition",   amount: 46000, dueDate: pastDue,   createdBy: admin._id },
         { course: "B.Tech ME",  feeHead: "Exam",       amount: 5000,  dueDate: pastDue,   createdBy: admin._id },
         { course: "B.Tech ME",  feeHead: "Transport",  amount: 8000,  dueDate: futureDue, createdBy: admin._id }
@@ -91,21 +84,18 @@ const seed = async () => {
 
     const feeStructures = await FeeStructure.insertMany(feeData);
 
-    // Build a lookup: course → [feeStructure ids]
     const courseToFees = {};
     feeStructures.forEach((fs) => {
         if (!courseToFees[fs.course]) courseToFees[fs.course] = [];
         courseToFees[fs.course].push(fs);
     });
 
-    // ── Payments (at least 10) ─────────────────────────────────────────────
     const paymentDate = new Date("2026-09-15");
 
-    // Aryan – pays Tuition partially
     const aryan = students[0];
     await Payment.create({
         student: aryan._id,
-        feeStructure: courseToFees["B.Tech CSE"][0]._id, // Tuition
+        feeStructure: courseToFees["B.Tech CSE"][0]._id,
         amount: 30000,
         paymentMode: "UPI",
         paymentDate,
@@ -114,7 +104,6 @@ const seed = async () => {
         recordedBy: admin._id
     });
 
-    // Priya – pays full Tuition
     const priya = students[1];
     await Payment.create({
         student: priya._id,
@@ -127,10 +116,9 @@ const seed = async () => {
         recordedBy: admin._id
     });
 
-    // Priya – pays Exam fee
     await Payment.create({
         student: priya._id,
-        feeStructure: courseToFees["B.Tech CSE"][1]._id, // Exam
+        feeStructure: courseToFees["B.Tech CSE"][1]._id,
         amount: 5000,
         paymentMode: "Cash",
         paymentDate,
@@ -139,7 +127,6 @@ const seed = async () => {
         recordedBy: admin._id
     });
 
-    // Rohan – pays Tuition fully
     const rohan = students[2];
     await Payment.create({
         student: rohan._id,
@@ -152,7 +139,6 @@ const seed = async () => {
         recordedBy: admin._id
     });
 
-    // Sneha – pays ECE Tuition partially
     const sneha = students[3];
     await Payment.create({
         student: sneha._id,
@@ -165,7 +151,6 @@ const seed = async () => {
         recordedBy: admin._id
     });
 
-    // Karan – pays ECE Tuition fully
     const karan = students[4];
     await Payment.create({
         student: karan._id,
@@ -178,7 +163,6 @@ const seed = async () => {
         recordedBy: admin._id
     });
 
-    // Pooja – pays ME Tuition partially
     const pooja = students[5];
     await Payment.create({
         student: pooja._id,
@@ -191,7 +175,6 @@ const seed = async () => {
         recordedBy: admin._id
     });
 
-    // Amit – pays CSE Exam fee
     const amit = students[6];
     await Payment.create({
         student: amit._id,
@@ -204,7 +187,6 @@ const seed = async () => {
         recordedBy: admin._id
     });
 
-    // Divya – pays ECE Exam fee
     const divya = students[7];
     await Payment.create({
         student: divya._id,
@@ -217,7 +199,6 @@ const seed = async () => {
         recordedBy: admin._id
     });
 
-    // Rahul – pays ME Exam fee
     const rahul = students[8];
     await Payment.create({
         student: rahul._id,
@@ -230,7 +211,6 @@ const seed = async () => {
         recordedBy: admin._id
     });
 
-    // Ankita – pays CSE Tuition fully
     const ankita = students[9];
     await Payment.create({
         student: ankita._id,

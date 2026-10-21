@@ -5,7 +5,6 @@ const dashboardController = require("../Controllers/dashboardController");
 const authMiddleware = require("../Middleware/authMiddleware");
 const adminMiddleware = require("../Middleware/adminMiddleware");
 
-// Admin only
 router.get(
     "/",
     authMiddleware,
